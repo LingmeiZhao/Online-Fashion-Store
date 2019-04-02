@@ -9,16 +9,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 public class CustomerController {
     @Autowired
     private CustomerMapper customerMapper;
 
+    private static HashMap<Integer, Long> sessions;
+
+    static {
+        sessions = new HashMap<>();
+    }
+
     @RequestMapping(value = "/get_user_by_id", method = RequestMethod.GET)
     public Object getUserById(@RequestParam Long customerId) {
         return customerMapper.findById(customerId);
     }
+
 
     @RequestMapping(value = "/customer_login", method = RequestMethod.POST)
     public ResponseEntity<Object> customerLogin(@RequestBody Map<String, Object> params){
@@ -27,10 +35,21 @@ public class CustomerController {
         if (customerMapper.findByEmailPassword(email, password) == true) {
             Customer customer = customerMapper.findByEmail(email);
             int sessionId = sessions.size();
-            sessions.put(sessionId, customer.getId());
+            sessions.put(sessionId, customer.getCustomerId());
             return new ResponseEntity<>(Integer.toString(sessionId), HttpStatus.OK);
         } else {
             return new ResponseEntity<>("-1", HttpStatus.BAD_REQUEST);
         }
     }
+
+    @RequestMapping(value = "/customer_details/{sessionId}", method = RequestMethod.GET)
+    public ResponseEntity<Object> getCustomerBySessionId(@PathVariable("sessionId") int sessionId) {
+        Long customerId = sessions.get(sessionId);
+        Customer customer = customerMapper.findByCustomerId(customerId);
+        return new ResponseEntity<>(
+                customer,
+                HttpStatus.OK
+        );
+    }
+
 }

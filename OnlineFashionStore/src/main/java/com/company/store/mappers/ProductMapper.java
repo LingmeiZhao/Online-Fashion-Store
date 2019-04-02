@@ -18,8 +18,22 @@ public interface ProductMapper {
             @Result(property = "review", column = "Review"),
             @Result(property = "addDate", column = "Add_Time")
     })
-    @Select(value = "SELECT * FROM Product ORDER BY ${byColumn} ${sortCriterion} LIMIT #{amount}")
-    ArrayList<Product> sortByPrice(@Param("byColumn") String byColumn,
-                                   @Param("sortCriterion") String sortCriterion,
-                                   @Param("amount") int amount);
+    @Select(value = "SELECT * FROM Product ORDER BY Sell_Quantity DESC LIMIT #{begin}, #{number}")
+    ArrayList<Product> sortByPrice(@Param("begin") int begin,
+                                   @Param("number") int number);
+
+    @Results({
+            @Result(property = "productId", column = "Product_ID"),
+            @Result(property = "name", column = "Product_Name"),
+            @Result(property = "price", column = "Price"),
+            @Result(property = "classification", column = "Classification"),
+            @Result(property = "size", column = "Size"),
+            @Result(property = "stockQuantity", column = "Stock_Quantity"),
+            @Result(property = "sellQuantity", column = "Sell_Quantity"),
+            @Result(property = "review", column = "Review"),
+            @Result(property = "addDate", column = "Add_Time")
+    })
+    @Select(value = "SELECT * FROM Product WHERE Product_ID = #{productId}")
+    Product findByProductId(Long productId);
+
 }
